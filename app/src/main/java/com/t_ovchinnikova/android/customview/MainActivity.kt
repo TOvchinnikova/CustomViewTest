@@ -21,13 +21,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.bottomButtons.setListener {
-            if (it == BottomButtonAction.POSITIVE) {
-                binding.bottomButtons.setPositiveButtonText("Updated OK")
-            } else {
-                binding.bottomButtons.setNegativeButtonText("Updated Cancel")
-            }
-        }
     }
 
     override fun onDestroy() {
