@@ -15,9 +15,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.properties.Delegates
 
-typealias OnCellActionListener = (row: Int, column: Int, field: TicTacToeField) -> Unit
-
-class TicTacToeView (
+class CropBoxView(
     context: Context,
     attributesSet: AttributeSet?,
     defStyleAttr: Int,
@@ -39,6 +37,7 @@ class TicTacToeView (
     private var player1Color by Delegates.notNull<Int>()
     private var player2Color by Delegates.notNull<Int>()
     private var gridColor by Delegates.notNull<Int>()
+    private var pointColor by Delegates.notNull<Int>()
 
     private val fieldRect = RectF()
     private var cellSize: Float = 0f
@@ -49,10 +48,11 @@ class TicTacToeView (
     private var currentRow: Int = -1
     private var currentColumn: Int = -1
 
-    private lateinit var player1Paint: Paint
-    private lateinit var player2Paint: Paint
+   /* private lateinit var player1Paint: Paint
+    private lateinit var player2Paint: Paint*/
     private lateinit var currentCellPaint: Paint
     private lateinit var gridPaint: Paint
+    private lateinit var pointPaint: Paint
 
     constructor(context: Context, attributesSet: AttributeSet?, defStyleAttr: Int) :
             this(context, attributesSet, defStyleAttr, R.style.DefaultTicTacToeFieldStyle)
@@ -94,25 +94,28 @@ class TicTacToeView (
     }
 
     private fun initPaints() {
-        player1Paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        /*player1Paint = Paint(Paint.ANTI_ALIAS_FLAG)
         player1Paint.color = player1Color
         player1Paint.style = Paint.Style.STROKE
-        player1Paint.strokeWidth = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP, 3f,
+        player1Paint.strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3f,
             resources.displayMetrics)
 
         player2Paint = Paint(Paint.ANTI_ALIAS_FLAG)
         player2Paint.color = player2Color
         player2Paint.style = Paint.Style.STROKE
-        player2Paint.strokeWidth = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP, 3f,
-            resources.displayMetrics)
+        player2Paint.strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3f,
+            resources.displayMetrics)*/
 
         gridPaint = Paint(Paint.ANTI_ALIAS_FLAG)
         gridPaint.color = gridColor
         gridPaint.style = Paint.Style.STROKE
-        gridPaint.strokeWidth = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP, 1f,
+        gridPaint.strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f,
+            resources.displayMetrics)
+
+        pointPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+        pointPaint.color = pointColor
+        pointPaint.style = Paint.Style.FILL_AND_STROKE
+        pointPaint.strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f,
             resources.displayMetrics)
 
         currentCellPaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -130,6 +133,7 @@ class TicTacToeView (
         player1Color = typedArray.getColor(R.styleable.TicTacToeView_player1Color, PLAYER1_DEFAULT_COLOR)
         player2Color = typedArray.getColor(R.styleable.TicTacToeView_player2Color, PLAYER2_DEFAULT_COLOR)
         gridColor = typedArray.getColor(R.styleable.TicTacToeView_gridColor, GRID_DEFAULT_COLOR)
+        pointColor = typedArray.getColor(R.styleable.TicTacToeView_pointColor, POINT_DEFAULT_COLOR)
 
         typedArray.recycle()
     }
@@ -138,6 +142,7 @@ class TicTacToeView (
         player1Color = PLAYER1_DEFAULT_COLOR
         player2Color = PLAYER2_DEFAULT_COLOR
         gridColor = GRID_DEFAULT_COLOR
+        pointColor = POINT_DEFAULT_COLOR
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) { //вызывается, когда компоновщик назначил опред размер компоненту
@@ -150,8 +155,7 @@ class TicTacToeView (
         val minWidth = suggestedMinimumWidth + paddingLeft + paddingRight
         val minHeight = suggestedMinimumHeight + paddingTop + paddingBottom
 
-        val desiredCellSizeInPixels = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
+        val desiredCellSizeInPixels = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
             DESIRED_CELL_SIZE, resources.displayMetrics).toInt()
         val rows = ticTacToeField?.rows ?: 0
         val columns = ticTacToeField?.columns ?: 0
@@ -206,8 +210,9 @@ class TicTacToeView (
         if (fieldRect.height() <= 0) return
 
         drawGrid(canvas)
+        drawPoint(canvas)
         drawCurrentCell(canvas)
-        drawCells(canvas)
+        //drawCells(canvas)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -290,7 +295,18 @@ class TicTacToeView (
         }
     }
 
-    private fun drawCells(canvas: Canvas) {
+    private fun drawPoint(canvas: Canvas) {
+        val xStart = fieldRect.left
+        val xEnd = fieldRect.right
+        val yStart = fieldRect.top
+        val yEnd = fieldRect.bottom
+        canvas.drawCircle(xStart, yStart, 10F, pointPaint)
+        canvas.drawCircle(xEnd, yEnd, 10F, pointPaint)
+        canvas.drawCircle(xStart, yEnd, 10F, pointPaint)
+        canvas.drawCircle(xEnd, yStart, 10F, pointPaint)
+    }
+
+    /*private fun drawCells(canvas: Canvas) {
         val field = this.ticTacToeField ?: return
         for (row in 0 until field.rows) {
             for (column in 0 until field.columns) {
@@ -302,18 +318,18 @@ class TicTacToeView (
                 }
             }
         }
-    }
+    }*/
 
-    private fun drawPlayer1(canvas: Canvas, row: Int, column: Int) {
+    /*private fun drawPlayer1(canvas: Canvas, row: Int, column: Int) {
         val cellRect = getCellRect(row, column)
         canvas.drawLine(cellRect.left, cellRect.top, cellRect.right, cellRect.bottom, player1Paint)
         canvas.drawLine(cellRect.right, cellRect.top, cellRect.left, cellRect.bottom, player1Paint)
-    }
+    }*/
 
-    private fun drawPlayer2(canvas: Canvas, row: Int, column: Int) {
+    /*private fun drawPlayer2(canvas: Canvas, row: Int, column: Int) {
         val cellRect = getCellRect(row, column)
         canvas.drawCircle(cellRect.centerX(), cellRect.centerY(), cellRect.width() / 2, player2Paint)
-    }
+    }*/
 
     private fun getCellRect(row: Int, column: Int): RectF {
         cellRect.left = fieldRect.left + column * cellSize + cellPadding
@@ -352,6 +368,7 @@ class TicTacToeView (
         const val PLAYER1_DEFAULT_COLOR = Color.GREEN
         const val PLAYER2_DEFAULT_COLOR = Color.RED
         const val GRID_DEFAULT_COLOR = Color.GRAY
+        const val POINT_DEFAULT_COLOR = Color.GRAY
 
         const val DESIRED_CELL_SIZE = 50f
     }
