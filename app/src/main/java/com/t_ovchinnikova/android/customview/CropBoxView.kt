@@ -34,10 +34,9 @@ class CropBoxView(
 
     var actionListener: OnCellActionListener? = null
 
-    private var player1Color by Delegates.notNull<Int>()
-    private var player2Color by Delegates.notNull<Int>()
     private var gridColor by Delegates.notNull<Int>()
     private var pointColor by Delegates.notNull<Int>()
+    private var pointRadius by Delegates.notNull<Float>()
 
     private val fieldRect = RectF()
     private var cellSize: Float = 0f
@@ -48,8 +47,6 @@ class CropBoxView(
     private var currentRow: Int = -1
     private var currentColumn: Int = -1
 
-   /* private lateinit var player1Paint: Paint
-    private lateinit var player2Paint: Paint*/
     private lateinit var currentCellPaint: Paint
     private lateinit var gridPaint: Paint
     private lateinit var pointPaint: Paint
@@ -94,17 +91,6 @@ class CropBoxView(
     }
 
     private fun initPaints() {
-        /*player1Paint = Paint(Paint.ANTI_ALIAS_FLAG)
-        player1Paint.color = player1Color
-        player1Paint.style = Paint.Style.STROKE
-        player1Paint.strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3f,
-            resources.displayMetrics)
-
-        player2Paint = Paint(Paint.ANTI_ALIAS_FLAG)
-        player2Paint.color = player2Color
-        player2Paint.style = Paint.Style.STROKE
-        player2Paint.strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3f,
-            resources.displayMetrics)*/
 
         gridPaint = Paint(Paint.ANTI_ALIAS_FLAG)
         gridPaint.color = gridColor
@@ -126,23 +112,21 @@ class CropBoxView(
     private fun initAttributes(attributesSet: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) {
         val typedArray = context.obtainStyledAttributes(
             attributesSet,
-            R.styleable.TicTacToeView,
+            R.styleable.CropBoxView,
             defStyleAttr, defStyleAttr
         )
 
-        player1Color = typedArray.getColor(R.styleable.TicTacToeView_player1Color, PLAYER1_DEFAULT_COLOR)
-        player2Color = typedArray.getColor(R.styleable.TicTacToeView_player2Color, PLAYER2_DEFAULT_COLOR)
-        gridColor = typedArray.getColor(R.styleable.TicTacToeView_gridColor, GRID_DEFAULT_COLOR)
-        pointColor = typedArray.getColor(R.styleable.TicTacToeView_pointColor, POINT_DEFAULT_COLOR)
+        gridColor = typedArray.getColor(R.styleable.CropBoxView_gridColorCropBox, GRID_DEFAULT_COLOR)
+        pointColor = typedArray.getColor(R.styleable.CropBoxView_pointColorCropBox, POINT_DEFAULT_COLOR)
+        pointRadius = typedArray.getFloat(R.styleable.CropBoxView_pointRadiusCropBox, POINT_DEFAULT_RADIUS)
 
         typedArray.recycle()
     }
 
     private fun initDefaultColors() {
-        player1Color = PLAYER1_DEFAULT_COLOR
-        player2Color = PLAYER2_DEFAULT_COLOR
         gridColor = GRID_DEFAULT_COLOR
         pointColor = POINT_DEFAULT_COLOR
+        pointRadius = POINT_DEFAULT_RADIUS
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) { //вызывается, когда компоновщик назначил опред размер компоненту
@@ -172,17 +156,18 @@ class CropBoxView(
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        return when(keyCode) {
+        /*return when(keyCode) {
             KeyEvent.KEYCODE_DPAD_DOWN -> moveCurrentCell(1, 0)
             KeyEvent.KEYCODE_DPAD_LEFT -> moveCurrentCell(0, -1)
             KeyEvent.KEYCODE_DPAD_RIGHT -> moveCurrentCell(0, 1)
             KeyEvent.KEYCODE_DPAD_UP -> moveCurrentCell(-1, 0)
             else ->
                 return super.onKeyDown(keyCode, event)
-        }
+        }*/
+        return super.onKeyDown(keyCode, event)
     }
 
-    private fun moveCurrentCell(rowDiff: Int, columnDiff: Int):Boolean {
+    /*private fun moveCurrentCell(rowDiff: Int, columnDiff: Int):Boolean {
         val field = this.ticTacToeField ?: return false
         if (currentRow == -1 || currentColumn == -1) {
             currentRow = 0
@@ -200,7 +185,7 @@ class CropBoxView(
             invalidate()
             return true
         }
-    }
+    }*/
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -211,7 +196,7 @@ class CropBoxView(
 
         drawGrid(canvas)
         drawPoint(canvas)
-        drawCurrentCell(canvas)
+        //drawCurrentCell(canvas)
         //drawCells(canvas)
     }
 
@@ -237,7 +222,7 @@ class CropBoxView(
         val field = this.ticTacToeField ?: return false
         val row = currentRow
         val column = currentColumn
-        if (row >= 0 && column >=0 && row < field.rows && column < field.columns) {
+        if (row >= 0 && column >= 0 && row < field.rows && column < field.columns) {
             actionListener?.invoke(row, column, field)
             return true
         }
@@ -265,7 +250,7 @@ class CropBoxView(
         return ((event.x - fieldRect.left) / cellSize).toInt()
     }
 
-    private fun drawCurrentCell(canvas: Canvas) {
+    /*private fun drawCurrentCell(canvas: Canvas) {
         if (currentRow == -1 || currentColumn == -1) return
         val cell = getCellRect(currentRow, currentColumn)
         canvas.drawRect(
@@ -275,7 +260,7 @@ class CropBoxView(
             cell.bottom + cellPadding,
             currentCellPaint
         )
-    }
+    }*/
 
     private fun drawGrid(canvas: Canvas) {
         val field = this.ticTacToeField ?: return
@@ -300,10 +285,14 @@ class CropBoxView(
         val xEnd = fieldRect.right
         val yStart = fieldRect.top
         val yEnd = fieldRect.bottom
-        canvas.drawCircle(xStart, yStart, 10F, pointPaint)
-        canvas.drawCircle(xEnd, yEnd, 10F, pointPaint)
-        canvas.drawCircle(xStart, yEnd, 10F, pointPaint)
-        canvas.drawCircle(xEnd, yStart, 10F, pointPaint)
+        canvas.drawCircle(xStart, yStart, pointRadius, pointPaint)
+        canvas.drawCircle(xEnd, yEnd, pointRadius, pointPaint)
+        canvas.drawCircle(xStart, yEnd, pointRadius, pointPaint)
+        canvas.drawCircle(xEnd, yStart, pointRadius, pointPaint)
+        canvas.drawCircle((xStart + xEnd) / 2, yStart, pointRadius, pointPaint)
+        canvas.drawCircle(xStart, (yStart + yEnd) / 2, pointRadius, pointPaint)
+        canvas.drawCircle((xStart + xEnd) / 2, yEnd, pointRadius, pointPaint)
+        canvas.drawCircle(xEnd, (yStart + yEnd) / 2, pointRadius, pointPaint)
     }
 
     /*private fun drawCells(canvas: Canvas) {
@@ -365,10 +354,9 @@ class CropBoxView(
     }
 
     companion object {
-        const val PLAYER1_DEFAULT_COLOR = Color.GREEN
-        const val PLAYER2_DEFAULT_COLOR = Color.RED
         const val GRID_DEFAULT_COLOR = Color.GRAY
         const val POINT_DEFAULT_COLOR = Color.GRAY
+        const val POINT_DEFAULT_RADIUS = 10F
 
         const val DESIRED_CELL_SIZE = 50f
     }

@@ -19,6 +19,13 @@
         <attr name="player2Color" format="color" />
         <attr name="gridColor" format="color" />
         <attr name="pointColor" format="color" />
+        <attr name="pointRadius" format="float" />
+    </declare-styleable>
+
+    <declare-styleable name="CropBoxView">
+        <attr name="gridColorCropBox" format="color" />
+        <attr name="pointColorCropBox" format="color" />
+        <attr name="pointRadiusCropBox" format="float" />
     </declare-styleable>
 
     <attr name="ticTacToeFieldStyle" format="reference" />
